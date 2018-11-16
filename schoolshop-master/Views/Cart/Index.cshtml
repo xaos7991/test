@@ -1,0 +1,68 @@
+﻿@model IEnumerable<OrderViewModel>
+
+@{
+    var title = "Корзина";
+    ViewData["Title"] = title;
+}
+
+@section scripts {
+    <script>
+        function orderPayed(orderId) {
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open("GET", "orders/" + orderId + "/payed", true);
+
+            xhr.send();
+
+            xhr.onload = function () {
+                console.log(xhr.response);
+                if (JSON.parse(xhr.response)) {
+                    var $button = document.getElementById("button_" + orderId);
+                    $button.style.display = 'none';
+                    var $orderStatusLabel = document.getElementById("order_status_" + orderId);
+                    $orderStatusLabel.textContent = "Оплаченный";
+                }
+            };
+        }
+    </script>
+}
+
+<h2>@title</h2>
+
+@foreach (var order in Model)
+{
+    <div class="md-t-1">
+        <h3>Номер заказа: @order.Number</h3>
+        <h4>Статус заказа: <span id="order_status_@(order.Id)">@(order.Status == OrderStatus.NotPayed ? "Не оплаченный" : "Оплаченный")</span></h4>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Название продукта</th>
+                    <th>Цена</th>
+                    <th>Количество</th>
+                    <th>Итог</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in order.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.ProductPrice</td>
+                        <td>@item.Count</td>
+                        <td>@item.TotalSum</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h3>Стоимость заказа: @order.TotalSum</h3>
+        @if (order.Status == OrderStatus.NotPayed)
+        {
+            <button id="button_@(order.Id)" onclick="orderPayed(@(order.Id))" class="btn btn-success">Оплатить заказ</button>
+        }
+
+    </div>
+}

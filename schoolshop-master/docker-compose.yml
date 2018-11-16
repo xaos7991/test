@@ -1,0 +1,10 @@
+﻿version: '3'
+
+services:
+
+      web:
+        build: .
+        volumes: 
+           - ${DB_PATH_HOST}:${DB_PATH_CONTAINER}
+        ports:
+           - 5001:80
